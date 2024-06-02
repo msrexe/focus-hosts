@@ -24,7 +24,10 @@ if [ "$EUID" -ne 0 ]; then
 fi
 if [ ! -f "block-list.txt" ]; then
   echo "block-list.txt not found"
-  exit
+  # create an empty block-list.txt file and fill it with some default entries
+  touch block-list.txt
+  echo "facebook.com\ninstagram.com\nlinkedin.com\nreddit.com\ntwitter.com\nyoutube.com" > block-list.txt
+  echo "block-list.txt created with default entries"
 fi
 if [ ! -f "/etc/hosts" ]; then
   echo "/etc/hosts not found"
@@ -53,6 +56,8 @@ case "$DURATION" in
     usage
     ;;
 esac
+
+trap "sed -i '' '/# Block-list start/,/# Block-list end/d' /etc/hosts; echo '\nFocus session ended. /etc/hosts restored to original state.'; exit" SIGINT SIGTERM
 
 sleep $SECONDS
 
